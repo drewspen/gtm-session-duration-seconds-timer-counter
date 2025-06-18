@@ -1,0 +1,419 @@
+{
+    "exportFormatVersion": 2,
+    "exportTime": "2025-06-18 21:05:07",
+    "containerVersion": {
+        "path": "accounts/999999999/containers/999999999/versions/0",
+        "accountId": "999999999",
+        "containerId": "999999999",
+        "containerVersionId": "0",
+        "container": {
+            "path": "accounts/999999999/containers/999999999",
+            "accountId": "999999999",
+            "containerId": "999999999",
+            "name": "gtm-session-duration-seconds-timer-counter",
+            "publicId": "GTM-AAAAAAAA",
+            "usageContext": [
+                "WEB"
+            ],
+            "fingerprint": "1695130343263",
+            "tagManagerUrl": "https://tagmanager.google.com/#/container/accounts/999999999/containers/999999999/workspaces?apiLink=container",
+            "features": {
+                "supportUserPermissions": true,
+                "supportEnvironments": true,
+                "supportWorkspaces": true,
+                "supportGtagConfigs": false,
+                "supportBuiltInVariables": true,
+                "supportClients": false,
+                "supportFolders": true,
+                "supportTags": true,
+                "supportTemplates": true,
+                "supportTriggers": true,
+                "supportVariables": true,
+                "supportVersions": true,
+                "supportZones": true,
+                "supportTransformations": false
+            },
+            "tagIds": [
+                "GTM-AAAAAAAA"
+            ]
+        },
+        "tag": [
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "tagId": "1073",
+                "name": "Session Duration Send Event",
+                "type": "gaawe",
+                "parameter": [
+                    {
+                        "type": "BOOLEAN",
+                        "key": "sendEcommerceData",
+                        "value": "false"
+                    },
+                    {
+                        "type": "LIST",
+                        "key": "eventSettingsTable",
+                        "list": [
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "session_duration_{{Session Duration dataLayer String}}sec_count"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "1"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "eventName",
+                        "value": "session_duration_{{Session Duration dataLayer String}}sec"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "measurementIdOverride",
+                        "value": "{{Google Analytics Stream RegEx Lookup}}"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "eventSettingsVariable",
+                        "value": "{{Google Tag Shared Event Settings}}"
+                    }
+                ],
+                "fingerprint": "1747851396815",
+                "firingTriggerId": [
+                    "1071"
+                ],
+                "parentFolderId": "1063",
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NEEDED",
+                    "consentType": {
+                        "type": "LIST",
+                        "list": [
+                            {
+                                "type": "TEMPLATE",
+                                "value": "analytics_storage"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "tagId": "1076",
+                "name": "Session Duration Listener",
+                "type": "html",
+                "notes": "Based on code written by Leon Korteweg (leonkorteweg.nl)\nhttps://www.youtube.com/watch?v=4ySb0BpS_W4\nhttps://www.dropbox.com/s/4i6a8fyhi8enhdr/20230309-session-duration.json?e=1&dl=0",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "html",
+                        "value": "<script> \n/* Based on code written by Leon Korteweg (leonkorteweg.nl)\n * Modified to work for seconds and set cookie domain by Drew Spencer\n * Excellent cookie scripts borrowed from Peter-Paul Koch (https://www.quirksmode.org/js/cookies.html)\n */\nvar theDomain = {{Root Domain}}; \nvar theCookieName = {{Session Duration Cookie Name}}; \nvar theIntervalSeconds = 1; \nvar theSessionExpires = theIntervalSeconds * 9; // expire time part of check but cookie does not need to live more than seconds past each check\nvar theSecondMarkers = [6, 11, 90];\n\nvar GTMSessionDuration = function() { \n  this.settings = { secondMarkers: theSecondMarkers, sessionExpires: theSessionExpires }; /* Some settings */\n  setInterval( this.checkDuration.bind(this), theIntervalSeconds * 1000 ); /* Check duration every X ms */\n};\nGTMSessionDuration.prototype.checkDuration = function() {\n  if ( document.hidden ) return; /* stop if tab inactive */\n  var durationSeconds = this.readCookie( theCookieName ) || 0; /* get last session duration from cookie or start from 0 */\n  durationSeconds = parseInt( durationSeconds ); /*  convert to number */\n  this.createCookie( theCookieName , durationSeconds + theIntervalSeconds , this.settings.sessionExpires ); /* save session duration + 1 sec */\n  if( this.settings.secondMarkers.indexOf( durationSeconds ) !== -1 ) { this.dataLayerPush( durationSeconds ); } /* dataLayer push if in second marker list */\n};\nGTMSessionDuration.prototype.dataLayerPush = function( durationSeconds ) {\n  dataLayer.push({ 'event': 'session_duration', 'session_duration_seconds': durationSeconds });\n};\nGTMSessionDuration.prototype.createCookie = function(name,value,seconds) {\n    var expires = \"\";\n\tif (seconds) {\n\t\tvar date = new Date();\n\t\tdate.setTime(date.getTime()+(seconds*1000));\n\t\tvar expires = \"; expires=\"+date.toGMTString();\n\t}\n\tdocument.cookie = name+\"=\"+value+expires+\"; path=/; SameSite=None; Secure; domain=.\" + theDomain;\n};\nGTMSessionDuration.prototype.readCookie = function(name) {\n\tvar nameEQ = name + \"=\";\n\tvar ca = document.cookie.split(';');\n\tfor(var i=0;i < ca.length;i++) {\n\t\tvar c = ca[i];\n\t\twhile (c.charAt(0)==' ') c = c.substring(1,c.length);\n\t\tif (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);\n\t}\n\treturn null;\n};\nvar gtmSessionDuration = new GTMSessionDuration();\n</script>"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "supportDocumentWrite",
+                        "value": "false"
+                    }
+                ],
+                "fingerprint": "1747866592894",
+                "firingTriggerId": [
+                    "2147479573"
+                ],
+                "parentFolderId": "1063",
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NEEDED",
+                    "consentType": {
+                        "type": "LIST",
+                        "list": [
+                            {
+                                "type": "TEMPLATE",
+                                "value": "functionality_storage"
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "trigger": [
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "triggerId": "1071",
+                "name": "Session Duration Event",
+                "type": "CUSTOM_EVENT",
+                "customEventFilter": [
+                    {
+                        "type": "EQUALS",
+                        "parameter": [
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg1",
+                                "value": "session_duration"
+                            }
+                        ]
+                    }
+                ],
+                "filter": [
+                    {
+                        "type": "MATCH_REGEX",
+                        "parameter": [
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg0",
+                                "value": "{{Session Duration dataLayer String}}"
+                            },
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg1",
+                                "value": "^[1-9]$|^[1-9][0-9]$|^[1-9].*"
+                            },
+                            {
+                                "type": "BOOLEAN",
+                                "key": "ignore_case",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                ],
+                "fingerprint": "1747862105055",
+                "parentFolderId": "1063"
+            }
+        ],
+        "variable": [
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "variableId": "703",
+                "name": "Root Domain",
+                "type": "cvt_999999999_676",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "inputValue",
+                        "value": "{{Page Hostname}}"
+                    }
+                ],
+                "fingerprint": "1732249401862",
+                "parentFolderId": "4",
+                "formatValue": {
+                    "caseConversionType": "LOWERCASE"
+                }
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "variableId": "1064",
+                "name": "Session Duration dataLayer",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "session_duration_seconds"
+                    }
+                ],
+                "fingerprint": "1747833061897",
+                "parentFolderId": "1063",
+                "formatValue": {}
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "variableId": "1075",
+                "name": "Session Duration Cookie Name",
+                "type": "c",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "value",
+                        "value": "_my_session_duration"
+                    }
+                ],
+                "fingerprint": "1747833061899",
+                "parentFolderId": "1063",
+                "formatValue": {}
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "variableId": "1084",
+                "name": "Session Duration dataLayer String",
+                "type": "cvt_5TJMM",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "op2",
+                        "value": "0"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "resultTransformation",
+                        "value": "string"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "op1",
+                        "value": "{{Session Duration dataLayer}}"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "calcFunctionName",
+                        "value": "add"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "functionType",
+                        "value": "calc"
+                    }
+                ],
+                "fingerprint": "1747849064987",
+                "parentFolderId": "1063",
+                "formatValue": {}
+            }
+        ],
+        "folder": [
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "folderId": "4",
+                "name": "Analytics",
+                "fingerprint": "1729625517906"
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "folderId": "1063",
+                "name": "Session Duration",
+                "fingerprint": "1747833061896"
+            }
+        ],
+        "builtInVariable": [
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "type": "PAGE_HOSTNAME",
+                "name": "Page Hostname"
+            }
+        ],
+        "fingerprint": "1750280707183",
+        "tagManagerUrl": "https://tagmanager.google.com/#/versions/accounts/999999999/containers/999999999/versions/0?apiLink=version",
+        "customTemplate": [
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "templateId": "676",
+                "name": "Get Root Domain",
+                "fingerprint": "1732193260088",
+                "templateData": "___TERMS_OF_SERVICE___\n\nBy creating or modifying this file you agree to Google Tag Manager's Community\nTemplate Gallery Developer Terms of Service available at\nhttps://developers.google.com/tag-manager/gallery-tos (or such other URL as\nGoogle may provide), as modified from time to time.\n\n\n___INFO___\n\n{\n  \"type\": \"MACRO\",\n  \"id\": \"cvt_temp_public_id\",\n  \"version\": 1,\n  \"securityGroups\": [],\n  \"displayName\": \"Get Root Domain\",\n  \"categories\": [\n    \"UTILITY\"\n  ],\n  \"description\": \"Extract Root domain from hostname or URL\",\n  \"containerContexts\": [\n    \"WEB\"\n  ],\n  \"brand\": {\n    \"displayName\": \"mbaersch\",\n    \"id\": \"github.com_mbaersch\"\n  }\n}\n\n\n___TEMPLATE_PARAMETERS___\n\n[\n  {\n    \"type\": \"TEXT\",\n    \"name\": \"inputValue\",\n    \"displayName\": \"Host or URL\",\n    \"simpleValueType\": true\n  }\n]\n\n\n___SANDBOXED_JS_FOR_WEB_TEMPLATE___\n\n//input may be hostname or URL\nvar domain = data.inputValue||\"\";\nvar x = domain.indexOf('//');\n\n//protocol-relative URL or hostname only?\nif (x === 0) domain = 'https:'+domain;  \nelse if (x<0) domain = \"https://\"+domain;\n\n//try to extract from complete URL\nvar urlData = require(\"parseUrl\")(domain);\nif (urlData && urlData.hostname) domain = urlData.hostname;\n\n//delete path if still present due to incomplete input\ndomain = domain.split('/')[0];\n\n//extracting root domain as demonstrated here: \n//https://gist.github.com/RavenHursT/fe8a95a59109096ac1f8?permalink_comment_id=3869493#gistcomment-3869493\nconst elems = domain.split('.');\nconst iMax = elems.length - 1;\nconst isSecondLevel = elems.length >= 3 && (elems[iMax] + elems[iMax - 1]).length <= 5;\nreturn elems.splice( isSecondLevel ? -3 : -2 ).join('.');\n\n\n___TESTS___\n\nscenarios: []\n\n\n___NOTES___\n\nCreated on 24.8.2022, 17:38:42\n\n\n",
+                "galleryReference": {
+                    "host": "github.com",
+                    "owner": "mbaersch",
+                    "repository": "get-root-domain",
+                    "version": "d316df624417f3027b1de216572ab9fe6ebcf208",
+                    "signature": "ab1809f2060c063a86a1dfa4783093b76eb69b0e27ae13ac4e94e1cc67298eb0"
+                }
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "templateId": "679",
+                "name": "Timestamp",
+                "fingerprint": "1732429630050",
+                "templateData": "___TERMS_OF_SERVICE___\n\nBy creating or modifying this file you agree to Google Tag Manager's Community\nTemplate Gallery Developer Terms of Service available at\nhttps://developers.google.com/tag-manager/gallery-tos (or such other URL as\nGoogle may provide), as modified from time to time.\n\n\n___INFO___\n\n{\n  \"type\": \"MACRO\",\n  \"id\": \"cvt_temp_public_id\",\n  \"version\": 1,\n  \"securityGroups\": [],\n  \"displayName\": \"Timestamp\",\n  \"categories\": [\n    \"UTILITY\",\n    \"TAG_MANAGEMENT\"\n  ],\n  \"description\": \"Returns a \\u003cstrong\\u003enumber\\u003c/strong\\u003e that represents the current time in milliseconds since the epoch (UTC timezone).\",\n  \"containerContexts\": [\n    \"WEB\"\n  ],\n  \"brand\": {\n    \"displayName\": \"luratic\",\n    \"id\": \"github.com_luratic\"\n  }\n}\n\n\n___TEMPLATE_PARAMETERS___\n\n[\n  {\n    \"type\": \"LABEL\",\n    \"name\": \"Documentation\",\n    \"displayName\": \"\\u003cstrong\\u003e\\u003ca href\\u003d\\\"https://www.luratic.com/posts/templates/variables/timestamp/\\\"\\u003eDocumentation\\u003c/a\\u003e\\u003c/strong\\u003e\"\n  }\n]\n\n\n___SANDBOXED_JS_FOR_WEB_TEMPLATE___\n\nconst getTimestampMillis = require ('getTimestampMillis');\nreturn getTimestampMillis();\n\n\n___TESTS___\n\nscenarios:\n- name: Variable result is defined\n  code: |-\n    // Call runCode to run the template's code.\n    let variableResult = runCode();\n\n    // Validate that the result of runCode is defined.\n    assertThat(variableResult).isDefined();\n\n\n___NOTES___\n\nDeveloped with ❤ by: Alfonso, Txema and Brais.\nWeb: www.luratic.com\nLinkedin: \nhttps://www.linkedin.com/in/braiscalvo/\nhttps://www.linkedin.com/in/alfonsorc/\nhttps://www.linkedin.com/in/txema-s%C3%A1nchez-a48482ba/\n\n\n",
+                "galleryReference": {
+                    "host": "github.com",
+                    "owner": "luratic",
+                    "repository": "Timestamp",
+                    "version": "8c2e414949799e1622d01e5097d8af4797b758af",
+                    "signature": "234fd14363c605c7a3eaec51533f430b5e47d782bcf4d228fc6409113b3ea35e"
+                }
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "templateId": "681",
+                "name": "Number & String Operations",
+                "fingerprint": "1748522521322",
+                "templateData": "___TERMS_OF_SERVICE___\n\nBy creating or modifying this file you agree to Google Tag Manager's Community\nTemplate Gallery Developer Terms of Service available at\nhttps://developers.google.com/tag-manager/gallery-tos (or such other URL as\nGoogle may provide), as modified from time to time.\n\n\n___INFO___\n\n{\n  \"type\": \"MACRO\",\n  \"id\": \"cvt_5TJMM\",\n  \"version\": 1,\n  \"displayName\": \"Number \\u0026 String Operations\",\n  \"categories\": [\n    \"UTILITY\"\n  ],\n  \"description\": \"Set of Math and string manipulation operations in case you need to do some \\\"transformation light\\\" with event data and request parameters\",\n  \"containerContexts\": [\n    \"WEB\"\n  ],\n  \"brand\": {\n    \"displayName\": \"mbaersch\",\n    \"id\": \"github.com_mbaersch\"\n  }\n}\n\n\n___TEMPLATE_PARAMETERS___\n\n[\n  {\n    \"type\": \"SELECT\",\n    \"name\": \"functionType\",\n    \"displayName\": \"Operation Type\",\n    \"macrosInSelect\": false,\n    \"selectItems\": [\n      {\n        \"value\": \"calc\",\n        \"displayValue\": \"Calculate\"\n      },\n      {\n        \"value\": \"math\",\n        \"displayValue\": \"Math Methods\"\n      },\n      {\n        \"value\": \"strings\",\n        \"displayValue\": \"String Functions\"\n      }\n    ],\n    \"simpleValueType\": true,\n    \"valueValidators\": [\n      {\n        \"type\": \"NON_EMPTY\"\n      }\n    ],\n    \"help\": \"Pick a class of operations to perform\"\n  },\n  {\n    \"type\": \"SELECT\",\n    \"name\": \"calcFunctionName\",\n    \"displayName\": \"Operation\",\n    \"selectItems\": [\n      {\n        \"value\": \"add\",\n        \"displayValue\": \"add (+)\"\n      },\n      {\n        \"value\": \"subtract\",\n        \"displayValue\": \"subtract (-)\"\n      },\n      {\n        \"value\": \"multiply\",\n        \"displayValue\": \"multiply (*)\"\n      },\n      {\n        \"value\": \"divide\",\n        \"displayValue\": \"divide (/)\"\n      },\n      {\n        \"value\": \"b_and\",\n        \"displayValue\": \"AND (boolean)\"\n      },\n      {\n        \"value\": \"b_or\",\n        \"displayValue\": \"OR (boolean)\"\n      },\n      {\n        \"value\": \"b_not\",\n        \"displayValue\": \"NOT (boolean)\"\n      }\n    ],\n    \"simpleValueType\": true,\n    \"valueValidators\": [\n      {\n        \"type\": \"NON_EMPTY\"\n      }\n    ],\n    \"enablingConditions\": [\n      {\n        \"paramName\": \"functionType\",\n        \"paramValue\": \"calc\",\n        \"type\": \"EQUALS\"\n      }\n    ]\n  },\n  {\n    \"type\": \"SELECT\",\n    \"name\": \"mathMethodName\",\n    \"displayName\": \"Method\",\n    \"selectItems\": [\n      {\n        \"value\": \"abs\",\n        \"displayValue\": \"abs\"\n      },\n      {\n        \"value\": \"ceil\",\n        \"displayValue\": \"ceil\"\n      },\n      {\n        \"value\": \"floor\",\n        \"displayValue\": \"floor\"\n      },\n      {\n        \"value\": \"max\",\n        \"displayValue\": \"max\"\n      },\n      {\n        \"value\": \"min\",\n        \"displayValue\": \"min\"\n      },\n      {\n        \"value\": \"round\",\n        \"displayValue\": \"round\"\n      },\n      {\n        \"value\": \"trunc\",\n        \"displayValue\": \"trunc\"\n      },\n      {\n        \"value\": \"pow\",\n        \"displayValue\": \"pow\"\n      },\n      {\n        \"value\": \"sqrt\",\n        \"displayValue\": \"sqrt\"\n      }\n    ],\n    \"simpleValueType\": true,\n    \"valueValidators\": [\n      {\n        \"type\": \"NON_EMPTY\"\n      }\n    ],\n    \"enablingConditions\": [\n      {\n        \"paramName\": \"functionType\",\n        \"paramValue\": \"math\",\n        \"type\": \"EQUALS\"\n      }\n    ]\n  },\n  {\n    \"type\": \"SELECT\",\n    \"name\": \"stringMethodName\",\n    \"displayName\": \"Function\",\n    \"selectItems\": [\n      {\n        \"value\": \"indexOf\",\n        \"displayValue\": \"indexOf\"\n      },\n      {\n        \"value\": \"lastIndexOf\",\n        \"displayValue\": \"lastIndexOf\"\n      },\n      {\n        \"value\": \"split\",\n        \"displayValue\": \"split\"\n      },\n      {\n        \"value\": \"toLowerCase\",\n        \"displayValue\": \"toLowerCase\"\n      },\n      {\n        \"value\": \"toUpperCase\",\n        \"displayValue\": \"toUpperCase\"\n      },\n      {\n        \"value\": \"replace\",\n        \"displayValue\": \"replace\"\n      },\n      {\n        \"value\": \"slice\",\n        \"displayValue\": \"slice\"\n      },\n      {\n        \"value\": \"substr\",\n        \"displayValue\": \"substr\"\n      },\n      {\n        \"value\": \"substring\",\n        \"displayValue\": \"substring\"\n      },\n      {\n        \"value\": \"match\",\n        \"displayValue\": \"match\"\n      },\n      {\n        \"value\": \"base64\",\n        \"displayValue\": \"base64\"\n      },\n      {\n        \"value\": \"toFixed\",\n        \"displayValue\": \"toFixed (Param2 \\u003d Decimals)\"\n      },\n      {\n        \"value\": \"toNumber\",\n        \"displayValue\": \"toNumber\"\n      },\n      {\n        \"value\": \"replaceAll\",\n        \"displayValue\": \"replaceAll\"\n      },\n      {\n        \"value\": \"splitSpecial\",\n        \"displayValue\": \"split+extract (split, then get item at param 3 index)\"\n      },\n      {\n        \"value\": \"jstringify\",\n        \"displayValue\": \"JSON.stringify\"\n      },\n      {\n        \"value\": \"jparse\",\n        \"displayValue\": \"JSON.parse\"\n      }\n    ],\n    \"simpleValueType\": true,\n    \"valueValidators\": [\n      {\n        \"type\": \"NON_EMPTY\"\n      }\n    ],\n    \"enablingConditions\": [\n      {\n        \"paramName\": \"functionType\",\n        \"paramValue\": \"strings\",\n        \"type\": \"EQUALS\"\n      }\n    ]\n  },\n  {\n    \"type\": \"TEXT\",\n    \"name\": \"op1\",\n    \"displayName\": \"Parameter 1\",\n    \"simpleValueType\": true,\n    \"valueValidators\": [\n      {\n        \"type\": \"NON_EMPTY\"\n      }\n    ]\n  },\n  {\n    \"type\": \"TEXT\",\n    \"name\": \"op2\",\n    \"displayName\": \"Parameter 2\",\n    \"simpleValueType\": true,\n    \"valueValidators\": [\n      {\n        \"type\": \"REGEX\",\n        \"args\": [\n          \"^.+$\"\n        ]\n      }\n    ],\n    \"enablingConditions\": [\n      {\n        \"paramName\": \"calcFunctionName\",\n        \"paramValue\": \"b_not\",\n        \"type\": \"NOT_EQUALS\"\n      },\n      {\n        \"paramName\": \"mathMethodName\",\n        \"paramValue\": \"min\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"mathMethodName\",\n        \"paramValue\": \"max\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"indexOf\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"lastIndexOf\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"match\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"replace\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"slice\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"substr\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"substring\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"toFixed\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"mathMethodName\",\n        \"paramValue\": \"pow\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"replaceAll\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"split\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"splitSpecial\",\n        \"type\": \"EQUALS\"\n      }\n    ]\n  },\n  {\n    \"type\": \"TEXT\",\n    \"name\": \"op3\",\n    \"displayName\": \"Parameter 3\",\n    \"simpleValueType\": true,\n    \"enablingConditions\": [\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"replace\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"replaceAll\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"slice\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"substr\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"substring\",\n        \"type\": \"EQUALS\"\n      },\n      {\n        \"paramName\": \"stringMethodName\",\n        \"paramValue\": \"splitSpecial\",\n        \"type\": \"EQUALS\"\n      }\n    ]\n  },\n  {\n    \"type\": \"SELECT\",\n    \"name\": \"resultTransformation\",\n    \"displayName\": \"Result Transformation\",\n    \"macrosInSelect\": false,\n    \"selectItems\": [\n      {\n        \"value\": \"none\",\n        \"displayValue\": \"None (unchanged)\"\n      },\n      {\n        \"value\": \"round\",\n        \"displayValue\": \"Convert To Integer (Rounded)\"\n      },\n      {\n        \"value\": \"fixed\",\n        \"displayValue\": \"Convert to Fixed (2 Decimals)\"\n      },\n      {\n        \"value\": \"floor\",\n        \"displayValue\": \"Convert To Integer (Truncated)\"\n      },\n      {\n        \"value\": \"string\",\n        \"displayValue\": \"Convert To String\"\n      }\n    ],\n    \"simpleValueType\": true,\n    \"valueValidators\": [\n      {\n        \"type\": \"NON_EMPTY\"\n      }\n    ],\n    \"defaultValue\": \"none\",\n    \"help\": \"Choose a transformation method to ensure desired output format\"\n  }\n]\n\n\n___SANDBOXED_JS_FOR_WEB_TEMPLATE___\n\n//const log = require(\"logToConsole\");\nconst Math = require(\"Math\");\nconst makeNumber = require('makeNumber');\nconst makeString = require('makeString');\nconst JSON = require('JSON');\nconst toBase64 = require('toBase64');\n\nvar rs;\nconst tp = data.functionType;\nvar op1 = makeNumber(data.op1);\nvar op2 = makeNumber(data.op2);\nvar op3 = makeNumber(data.op3);\n\nconst replaceAll = function(str, oldstr, newstr) {\n  var rs = str;\n  if (oldstr === newstr) return rs;\n  while (rs.indexOf(oldstr) >= 0)\n    rs = rs.replace(oldstr, newstr);\n  return rs;\n};  \n\nswitch(tp) {\n  case \"calc\": \n    const fn = data.calcFunctionName;\n    \n    if (fn.indexOf(\"b_\") >= 0) {\n      var op1_bool = makeString(data.op1).toLowerCase();\n      op1_bool = op1_bool === \"true\" || op1_bool === \"1\";\n      var op2_bool = makeString(data.op2).toLowerCase();\n      op2_bool = op2_bool === \"true\" || op2_bool === \"1\";\n    }\n    \n    switch(fn) {\n      case \"add\": rs = op1 + op2; break;\n      case \"subtract\": rs = op1 - op2; break;\n      case \"multiply\": rs = op1 * op2; break;\n      case \"divide\": rs = op1 / op2; break;\n      case \"b_and\": rs = op1_bool && op2_bool; break;\n      case \"b_or\": rs = op1_bool || op2_bool; break;\n      case \"b_not\": rs = !op1_bool; break;\n    }    \n    break;\n  case \"math\": \n    const mf = data.mathMethodName;\n    switch(mf) {\n      case \"abs\": rs = Math.abs(op1); break;\n      case \"ceil\": rs = Math.ceil(op1); break;\n      case \"floor\": rs = Math.floor(op1); break;\n      case \"max\": rs = Math.max(op1, op2); break;\n      case \"min\": rs = Math.min(op1, op2); break;\n      case \"round\": rs = Math.round(op1); break;\n      case \"trunc\": rs = Math.floor(op1); break;\n      case \"pow\": rs = Math.pow(op1, op2); break;\n      case \"sqrt\": rs = Math.sqrt(op1); break;\n    }    \n    break;\n  case \"strings\":\n    op1 = makeString(data.op1);\n    var op2s = makeString(data.op2 || \"\");\n    var op3s = makeString(data.op3 || \"\");\n    const sf = data.stringMethodName;\n    switch(sf) {\n      case \"indexOf\": rs = op1.indexOf(op2s); break;\n      case \"lastIndexOf\": rs = op1.lastIndexOf(op2s); break;\n      case \"split\": rs = op1.split(op2s); break;\n      case \"splitSpecial\": \n        rs = op1.split(op2s); \n        rs = (rs.length >= op3) ? rs[op3s] : undefined;\n        break;\n      case \"toLowerCase\": rs = op1.toLowerCase(); break;\n      case \"toUpperCase\": rs = op1.toUpperCase(); break;\n      case \"replace\": rs = op1.replace(op2s, op3s); break;\n      case \"replaceAll\": rs = replaceAll(op1, op2s, op3s); break;\n      case \"slice\": rs = op1.slice(op2, op3); break;\n      case \"substr\": rs = op1.substring(op2, op3+op2); break;\n      case \"substring\": rs = op1.substring(op2, op3); break;\n      case \"toFixed\": var mul = Math.pow(10, op2) ; rs = makeNumber(Math.round(op1*mul) / mul); break;\n      case \"toNumber\": \n        var idxComma = op1.indexOf(\",\"); \n        var idxDot = op1.indexOf(\".\");\n        if ((idxComma > 0) && (idxDot > 0)) {\n          if (idxComma > idxDot) \n            rs = replaceAll(replaceAll(op1, \".\", \"\"), \",\", \".\");\n          else\n            rs = replaceAll(op1, \",\", \"\"); \n        } else if (idxComma > 0)\n          rs = replaceAll(op1, \",\", \".\");\n        rs = makeNumber(rs);\n        break;\n      case \"match\": var fnd = op1.match(op2s);          \n        if (fnd) { rs = fnd[0]; }    \n        break;\n      case \"base64\": rs = toBase64(op1); break;  \n      case \"jstringify\": rs = JSON.stringify(data.op1); break;  \n      case \"jparse\": rs = JSON.parse(data.op1); break;  \n    }    \n    break;\n}\n      \nconst rt = data.resultTransformation;\nif (tp===\"calc\" && data.calcFunctionName.indexOf(\"b_\") >= 0) {\n  if (rt == 'string') return makeString(rs);\n  if (rt == 'round') return (rs === true) ? 1 : 0;\n  return rs;\n}\nif (rt == 'round') return Math.round(makeNumber(rs)); else\nif (rt == 'string') return makeString(makeNumber(rs)); else\nif (rt == 'floor') return Math.floor(makeNumber(rs)); else\nif (rt == 'fixed') return makeNumber(Math.round(makeNumber(rs)*100) / 100); else\nreturn rs;\n\n\n___TESTS___\n\nscenarios: []\nsetup: ''\n\n\n___NOTES___\n\nCreated on 17.10.2024, 03:22:00\n\n\n",
+                "galleryReference": {
+                    "host": "github.com",
+                    "owner": "mbaersch",
+                    "repository": "number-string-operations-web",
+                    "version": "9d6fcc5ded14c8e78c35fd0d19f0f6d816bf9379",
+                    "signature": "6cd00a96a0e248be6a94135a2c1c2aa8477394670cd8a238f5eeb812be4d1848",
+                    "galleryTemplateId": "5TJMM"
+                }
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "templateId": "691",
+                "name": "URL Components Parser",
+                "fingerprint": "1744641744822",
+                "templateData": "___TERMS_OF_SERVICE___\n\nBy creating or modifying this file you agree to Google Tag Manager's Community\nTemplate Gallery Developer Terms of Service available at\nhttps://developers.google.com/tag-manager/gallery-tos (or such other URL as\nGoogle may provide), as modified from time to time.\n\n\n___INFO___\n\n{\n  \"type\": \"MACRO\",\n  \"id\": \"cvt_temp_public_id\",\n  \"version\": 1,\n  \"securityGroups\": [],\n  \"displayName\": \"URL Components Parser\",\n  \"description\": \"Given a valid URL and a component name, this template will parse the URL and extract the component from the URL.\",\n  \"brand\": {\n    \"id\": \"github.com_justia\",\n    \"displayName\": \"justia\",\n    \"thumbnail\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAABoVBMVEUGNXr////7/P0KOHwJN3wINnv+/v4AJ3EHNnv9/v4IN3sJOHz+/v8AKHEALHT8/P39/f4HNnr8/f4AKnMAL3YAKHIAK3MEMnhKbJ6ZrMn8/f0AK3T+//+YrMgBLnYCMXhIap13kLaOo8MJN3sEMXgFM3kGNHoIN3wjTYoAKXIAJnAALXWcr8r29/r6+/0AJW8AKnIBK3MBL3YAMHcEL3YDMHYCMXcEMHcEMXcDMngDM3gENHkGM3kFNHkFNXoHNXoGNnoLNnsNOHwOOHwNOX0MO34RPoASQIEYQoIYQoMYQ4QkTYpDZptCZpoYRIQbRYQcR4YfR4YgSogkToopUY0qUo0zWZI1W5M4XZU6XpU+Y5g/ZJlCY5hDZ5tFaJxGaJxGaZxNbqBRcqJUc6NefalnhK5tibFyjLNzjbSFnL6PpMOVqseXqseXq8iZrMiarcmbrsmdr8qjtc6mt9Cywda2xNi5xtq7x9rBzN7Ez9/H0uHP2ObQ2eba4evc4+zh5u/j6fDm6/Ln7PLs7/Xt8fXw8vfw8/f3+fv4+vz5+vz6+/yJ4WSoAAABrElEQVR4Xu2VVa/cMBQG+9lBhmW+zMzMZWZmZmZm+NV1lL0rVa20Th4rj5THGZ1Yts4WPgQCn26SzF/JqbbKsFW7M4kvp48OVO4VCoXK/Tu7alr8QHv2HBQwyiCH03KCQGkvfhHGUPB9d7LAnsYE/0FABERABERABM4mCGj+H4vFAsOKETA6uhpL0Oy9BK8e6OEMdFcPrueMeoCqrSBRYPDQuMbjm+kdHwYyC7QeKD1HEQwd77fN+Tzz59ZeAY9XU9203ZC29p1BRICXXH+gdU0/AXHx5rRjO/2jw0feQUcIQZtNm/u+nH0IAgRQnl09dTzf9hUKQqCjJSs1D8h9N0Mf8PTIU/RN/+3GfPMjMJwbcBFRJAo89kUQXLdNnnv3AD/xD1y8pos+xxEsTT7CkP6XH+DHSUfiusSdE7ehR4M3UAjcy70m5zNYHrnyGYrrKuW6XSQ6Pp5nPie+lNl/6xsswAsYFsoYvLszxXxuzBn1wLWnnzyEWF9etPZkOpgfA9mcUp3txy7kL+ZbTuyrqmNm7H2gUWO2PxXi1GTK9ARohiSZkmRo3EZyBILfSzxK15953BYAAAAASUVORK5CYII\\u003d\"\n  },\n  \"containerContexts\": [\n    \"WEB\"\n  ],\n  \"categories\": [\n    \"UTILITY\"\n  ]\n}\n\n\n___TEMPLATE_PARAMETERS___\n\n[\n  {\n    \"type\": \"TEXT\",\n    \"name\": \"url\",\n    \"simpleValueType\": true,\n    \"valueHint\": \"e.g. https://my.domain.com/and-this-is-my-path?test\\u003d1\",\n    \"displayName\": \"URL\",\n    \"help\": \"Enter a valid URL to extract a component from it. You can enter a URL string or a variable name such as \\u003cstrong\\u003e{{ Page URL }}\\u003c/strong\\u003e (\\u003ca href\\u003d\\\"https://support.google.com/tagmanager/answer/7182738?hl\\u003den#pages\\\"\\u003ebuilt-in variable\\u003c/a\\u003e). If an invalid URL is provided, undefined will be returned.\"\n  },\n  {\n    \"type\": \"SELECT\",\n    \"name\": \"component\",\n    \"displayName\": \"URL Component\",\n    \"macrosInSelect\": false,\n    \"selectItems\": [\n      {\n        \"value\": \"protocol\",\n        \"displayValue\": \"Protocol\"\n      },\n      {\n        \"value\": \"domain\",\n        \"displayValue\": \"Domain\"\n      },\n      {\n        \"value\": \"rootDomain\",\n        \"displayValue\": \"Root Domain\"\n      },\n      {\n        \"value\": \"subdomain\",\n        \"displayValue\": \"Subdomain\"\n      },\n      {\n        \"value\": \"tld\",\n        \"displayValue\": \"Top-Level Domain (TLD)\"\n      },\n      {\n        \"value\": \"path\",\n        \"displayValue\": \"Path\"\n      },\n      {\n        \"value\": \"query\",\n        \"displayValue\": \"Query String\"\n      },\n      {\n        \"value\": \"hash\",\n        \"displayValue\": \"Hash\"\n      },\n      {\n        \"value\": \"port\",\n        \"displayValue\": \"Port\"\n      },\n      {\n        \"value\": \"url\",\n        \"displayValue\": \"URL\"\n      },\n      {\n        \"value\": \"object\",\n        \"displayValue\": \"Full Object\"\n      }\n    ],\n    \"simpleValueType\": true,\n    \"help\": \"See details in our \\u003ca href\\u003d\\\"https://github.com/justia/gtm-url-components-parser-variable/\\\"\\u003eGithub page\\u003c/a\\u003e.\"\n  },\n  {\n    \"type\": \"CHECKBOX\",\n    \"name\": \"ccSLD\",\n    \"checkboxText\": \"Country code second-level domain\",\n    \"simpleValueType\": true,\n    \"help\": \"Many domains end with classic top-level domains such as \\u003cem\\u003e.com\\u003c/em\\u003e, \\u003cem\\u003e.net\\u003c/em\\u003e, \\u003cem\\u003e.org\\u003c/em\\u003e, etc. However there are country top-level domains such as \\u003cem\\u003e.mx\\u003c/em\\u003e and \\u003cem\\u003e.uk\\u003c/em\\u003e. Such country code top-level domains usually have a \\u003ca href\\u003d\\\"https://en.wikipedia.org/wiki/Country_code_second-level_domain\\\"\\u003ecountry code second-level domain (ccSLD)\\u003c/a\\u003e, such as \\u003cem\\u003e.com.mx\\u003c/em\\u003e and \\u003cem\\u003e.ac.uk\\u003c/em\\u003e.\\nBy default, this tool assumes the URL does not contain a ccSLD. Check this box in case it does (for example, for domains such as https://my.domain.co.uk and https://www.domain.com.mx).\"\n  },\n  {\n    \"type\": \"CHECKBOX\",\n    \"name\": \"decodeUrl\",\n    \"checkboxText\": \"Decode URL\",\n    \"simpleValueType\": true,\n    \"help\": \"Check this box if you would like to decode the URL before parsing it.\"\n  }\n]\n\n\n___SANDBOXED_JS_FOR_WEB_TEMPLATE___\n\n// APIs\nconst parseUrl = require('parseUrl');\nconst decodeUri = require('decodeUriComponent');\nconst makeNumber = require('makeNumber');\nconst Math = require('Math');\n// const log = require('logToConsole');\n\n// Inputs\nconst sourceUrl = data.decodeUrl ? decodeUri(data.url) : data.url;\nconst url = parseUrl(sourceUrl);\nconst component = data.component;\nconst ccSLD = data.ccSLD || false;\n\n// Data Validation\nif (typeof url === 'undefined') {\n  return undefined;\n}\n\n// Logic\nconst parts = url.hostname.split('.');\nconst totalParts = parts.length;\n// this actually works for N number of tld nodes\nconst tldNodes = ccSLD ? 2 : 1;\nconst result = {};\n\nresult.protocol = url.protocol;\nresult.domain = url.hostname;\nresult.rootDomain = extractPartFromDomain(parts, tldNodes + 1, totalParts, true);\nresult.subdomain = extractPartFromDomain(parts, tldNodes + 1, totalParts, false);\nresult.tld = extractPartFromDomain(parts, tldNodes, totalParts, true);\nresult.path = url.pathname;\nresult.query = url.search;\nresult.hash = url.hash;\nresult.port = url.port;\nresult.url = url.href;\n\n// Variables must return a value.\nif (component === 'object') {\n  return result;\n}\n\nreturn result[component];\n\n\n//****************************************\n// Functions\nfunction isIp(parts) {\n  // apparently, there's no support for regex :(\n  return makeNumber(parts.join('')) == parts.join('');\n}\n\nfunction extractPartFromDomain(parts, tldNodes, totalNodes, extractSuffix) {\n  if (isIp(parts)) {\n    return parts.join('.');\n  }\n  \n  let filterSuffix = (index) => {\n    return (index + tldNodes) >= totalNodes;\n  };\n  \n  let filterPrefix = (index) => {\n    return (totalNodes - index - tldNodes) > 0; \n  };\n  \n  return parts.filter((node, i) => { \n    return extractSuffix ? filterSuffix(i) : filterPrefix(i);\n  }).join('.');\n}\n\n\n___TESTS___\n\nscenarios:\n- name: Extract protocol\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/Top-level_domain',\n      component: 'protocol'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('https:');\n- name: Extract domain\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/Top-level_domain',\n      component: 'domain'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('en.wikipedia.org');\n- name: Extract root domain\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/Top-level_domain',\n      component: 'rootDomain'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('wikipedia.org');\n- name: Extract root domain from localhost\n  code: |\n    const mockData = {\n      url: 'https://localhost/wiki/Top-level_domain',\n      component: 'domain'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('localhost');\n- name: Extract root domain from localhost with ccSLD\n  code: |\n    const mockData = {\n      url: 'https://localhost/wiki/Top-level_domain',\n      component: 'domain',\n      ccSLD: true\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('localhost');\n- name: Extract root domain from IP\n  code: |\n    const mockData = {\n      url: 'http://192.158.0.2/wiki/Top-level_domain',\n      component: 'domain',\n      ccSLD: true\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('192.158.0.2');\n- name: Extract root domain with ccSLD\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.co.uk/wiki/Top-level_domain',\n      component: 'rootDomain',\n      ccSLD: true\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('wikipedia.co.uk');\n- name: Extract subdomain\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/Top-level_domain',\n      component: 'subdomain'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('en');\n- name: Extract double subdomain\n  code: |\n    const mockData = {\n      url: 'https://en.sub.wikipedia.org/wiki/Top-level_domain',\n      component: 'subdomain'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('en.sub');\n- name: Extract subdomain with ccSLD\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.co.uk/wiki/Top-level_domain',\n      component: 'subdomain',\n      ccSLD: true\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('en');\n- name: Extract top level domain (tld)\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/Top-level_domain',\n      component: 'tld'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('org');\n- name: Extract path\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/Top-level_domain?foo=bar',\n      component: 'path'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('/wiki/Top-level_domain');\n- name: Extract query string\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/Top-level_domain?foo=bar',\n      component: 'query'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo(\"?foo=bar\");\n- name: Extract hash\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/Top-level_domain#foo',\n      component: 'hash'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isEqualTo('#foo');\n- name: Test wrong component\n  code: |-\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/Top-level_domain',\n      component: 'wrong'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isUndefined();\n- name: Test invalid URL\n  code: |-\n    const mockData = {\n      url: 'https//en.wikipedia.org/wiki/Stanford_Cardinal_women%27s_basketball?test=hello',\n      component: 'wrong'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertThat(result).isUndefined();\n- name: Extract Full Object\n  code: |\n    const mockData = {\n      url: 'https://en.wikipedia.co.uk/wiki/Top-level_domain?foo=bar#yes',\n      component: 'object',\n      ccSLD: true\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertApi('parseUrl').wasCalled();\n    assertThat(result.url).isEqualTo(mockData.url);\n    assertThat(result.rootDomain).isEqualTo(\"wikipedia.co.uk\");\n    assertThat(result.tld).isEqualTo(\"co.uk\");\n    assertThat(result.subdomain).isEqualTo(\"en\");\n- name: Test encoded URL without decode\n  code: |+\n    const mockData = {\n      url: 'https://en.wikipedia.org/wiki/foo%27bar',\n      component: 'object'\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertApi('decodeUri').wasNotCalled();\n    assertThat(result.url).isEqualTo(\"https://en.wikipedia.org/wiki/foo%27bar\");\n\n- name: Test encoded URL with decode\n  code: |+\n    const mockData = {\n      url: 'https://en.wikipedia.org%2Fwiki%2Ffo+o%27bar_foo%3Ffoo%3Dba+roo%26bar%3Dfoo+bar',\n      component: 'object',\n      decodeUrl: true\n    };\n\n    // Call runCode to run the template's code.\n    let result = runCode(mockData);\n\n    // Verify that the variable returns a result.\n    assertApi('decodeUriComponent').wasCalled();\n    assertThat(result.url).isEqualTo(\"https://en.wikipedia.org/wiki/fo+o'bar_foo?foo=ba+roo&bar=foo+bar\");\n\nsetup: ''\n\n\n___NOTES___\n\nCreated on 4/12/2021, 12:00:04 PM\n\n\n",
+                "galleryReference": {
+                    "host": "github.com",
+                    "owner": "justia",
+                    "repository": "gtm-url-components-parser-variable",
+                    "version": "8426b74b40444f75beb4f8793c5b91de54a6b3c3",
+                    "signature": "969fc5c043a3f977ee5ac4c3f443446e8f80ee5563d9834f39223a424ac61bb2"
+                }
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "templateId": "961",
+                "name": "If Else If - Advanced Lookup Table",
+                "fingerprint": "1744643546478",
+                "templateData": "___TERMS_OF_SERVICE___\n\nBy creating or modifying this file you agree to Google Tag Manager's Community\nTemplate Gallery Developer Terms of Service available at\nhttps://developers.google.com/tag-manager/gallery-tos (or such other URL as\nGoogle may provide), as modified from time to time.\n\n\n___INFO___\n\n{\n  \"displayName\": \"If Else If - Advanced Lookup Table\",\n  \"description\": \"An advanced lookup table with multiple tests and returns (by Sublimetrix)\",\n  \"securityGroups\": [],\n  \"id\": \"cvt_temp_public_id\",\n  \"type\": \"MACRO\",\n  \"version\": 1,\n  \"containerContexts\": [\n    \"WEB\"\n  ],\n  \"brand\": {\n    \"displayName\": \"sublimetrix\",\n    \"id\": \"github.com_sublimetrix\"\n  }\n}\n\n\n___TEMPLATE_PARAMETERS___\n\n[\n  {\n    \"displayName\": \"Documentation : https://github.com/sublimetrix/gtm-template-ifelseif\",\n    \"name\": \"documentation\",\n    \"type\": \"LABEL\"\n  },\n  {\n    \"alwaysInSummary\": false,\n    \"displayName\": \"Rule table\",\n    \"name\": \"rule_table\",\n    \"simpleTableColumns\": [\n      {\n        \"valueValidators\": [\n          {\n            \"type\": \"NON_EMPTY\"\n          }\n        ],\n        \"defaultValue\": \"\",\n        \"displayName\": \"If\",\n        \"name\": \"entry\",\n        \"type\": \"TEXT\"\n      },\n      {\n        \"selectItems\": [\n          {\n            \"displayValue\": \"equals\",\n            \"value\": \"equals\"\n          },\n          {\n            \"displayValue\": \"contains\",\n            \"value\": \"contains\"\n          },\n          {\n            \"displayValue\": \"starts with\",\n            \"value\": \"startsWith\"\n          },\n          {\n            \"displayValue\": \"ends with\",\n            \"value\": \"endsWith\"\n          },\n          {\n            \"displayValue\": \"matches RegEx\",\n            \"value\": \"matchesRegEx\"\n          },\n          {\n            \"displayValue\": \"matches RegEx (ignore case)\",\n            \"value\": \"matchesRegExIgnoreCase\"\n          },\n          {\n            \"displayValue\": \"does not equal\",\n            \"value\": \"doesNotEqual\"\n          },\n          {\n            \"displayValue\": \"does not contain\",\n            \"value\": \"doesNotContain\"\n          },\n          {\n            \"displayValue\": \"does not start with\",\n            \"value\": \"doesNotStartWith\"\n          },\n          {\n            \"displayValue\": \"does not end with\",\n            \"value\": \"doesNotEndWith\"\n          },\n          {\n            \"displayValue\": \"does not match RegEx\",\n            \"value\": \"doesNotMatchRegEx\"\n          },\n          {\n            \"displayValue\": \"does not match RegEx (ignore case)\",\n            \"value\": \"doesNotMatchRegExIgnoreCase\"\n          },\n          {\n            \"displayValue\": \"less than\",\n            \"value\": \"lessThan\"\n          },\n          {\n            \"displayValue\": \"less than or equal to\",\n            \"value\": \"lessThanOrEqualTo\"\n          },\n          {\n            \"displayValue\": \"greater than\",\n            \"value\": \"greaterThan\"\n          },\n          {\n            \"displayValue\": \"greater than or equal to\",\n            \"value\": \"greaterThanOrEqualTo\"\n          }\n        ],\n        \"defaultValue\": \"equals\",\n        \"displayName\": \"Matches\",\n        \"name\": \"method\",\n        \"type\": \"SELECT\"\n      },\n      {\n        \"valueValidators\": [\n          {\n            \"type\": \"NON_EMPTY\"\n          }\n        ],\n        \"defaultValue\": \"\",\n        \"displayName\": \"This\",\n        \"name\": \"comparator\",\n        \"isUnique\": false,\n        \"type\": \"TEXT\"\n      },\n      {\n        \"selectItems\": [],\n        \"valueValidators\": [\n          {\n            \"type\": \"NON_EMPTY\"\n          }\n        ],\n        \"defaultValue\": \"\",\n        \"displayName\": \"Return\",\n        \"name\": \"returnValue\",\n        \"type\": \"TEXT\"\n      }\n    ],\n    \"type\": \"SIMPLE_TABLE\",\n    \"newRowButtonText\": \"Else If\"\n  },\n  {\n    \"displayName\": \"Else (default value, leave empty to return undefined)\",\n    \"simpleValueType\": true,\n    \"name\": \"default_value\",\n    \"type\": \"TEXT\"\n  }\n]\n\n\n___SANDBOXED_JS_FOR_WEB_TEMPLATE___\n\n//const log = require('logToConsole');\n//log('data =', data);\nconst defaultValue = data.default_value;\n\nconst RULE = {\n  equals: (entry,comp) => {\n  \treturn entry == comp;\n  },\n  contains: (entry,comp) => {\n  \treturn (-1 < entry.indexOf(comp));\n  },\n  startsWith: (entry,comp) => {\n  \treturn entry.match('^('+comp+')');\n  },\n  endsWith: (entry,comp) => {\n  \treturn entry.match('('+comp+')$');\n  },\n  /***\n   *** not available\n  matchesCssSelector: (entry,comp) => {\n  \treturn entry.match(comp); // wip\n  },\n  ***/\n  matchesRegEx: (entry,comp) => {\n  \treturn entry.match(comp);\n  },\n  matchesRegExIgnoreCase: (entry,comp) => {\n  \treturn entry.toLowerCase().match(comp.toLowerCase());\n  },\n  doesNotEqual: (entry,comp) => {\n  \treturn entry != comp;\n  },\n  doesNotContain: (entry,comp) => {\n  \treturn (-1 > entry.indexOf(comp));\n  },\n  doesNotStartWith: (entry,comp) => {\n  \treturn !entry.match('^('+comp+')');\n  },\n  doesNotEndWith: (entry,comp) => {\n  \treturn !entry.match('('+comp+')$');\n  },\n  /***\n   *** not available\n  doesNotMatchCssSelector: (entry,comp) => {\n  \treturn false; // wip\n  },\n  ***/\n  doesNotMatchRegEx: (entry,comp) => {\n  \treturn !entry.match(comp);\n  },\n  doesNotMatchRegExIgnoreCase: (entry,comp) => {\n  \treturn !entry.toLowerCase().match(comp.toLowerCase());\n  },\n  lessThan: (entry,comp) => {\n  \treturn entry < comp;\n  },\n  lessThanOrEqualTo: (entry,comp) => {\n  \treturn entry <= comp;\n  },\n  greaterThan: (entry,comp) => {\n  \treturn entry > comp;\n  },\n  greaterThanOrEqualTo: (entry,comp) => {\n  \treturn entry >= comp;\n  }\n};\n\nconst rules = data.rule_table;\nif ('undefined' != typeof rules) {\n  for (let i=0; i<rules.length; i++) {\n    const rule = rules[i];\n    if ( RULE[rule.method](resolve(rule.entry),resolve(rule.comparator)) ) return rule.returnValue;\n  }\n}\n\nfunction resolve(x)\n{\n  switch (typeof x) {\n    case 'undefined': x = typeof x; break;\n    case 'boolean': x = x ? 'true' : 'false'; break;\n  }\n  return x;\n}\n\nreturn defaultValue;\n\n\n___TESTS___\n\nscenarios: []\n\n\n___NOTES___\n\n/*** SUBLIMETRIX ***/\nVersion: 1.0.0\nAuthor: Sublimetrix\nDate: 2019.10.09\n/*******************/\n\nChange Log:\n1.0.0: Initial Version\n1.1.0: Default value\n1.1.1: Fix boolean issue + remove log requirement\n1.1.2: Optimization\n1.2.0: Name change\n1.2.1: Fix on \"contains\" & \"does not contains\" comparators\n\n\n",
+                "galleryReference": {
+                    "host": "github.com",
+                    "owner": "sublimetrix",
+                    "repository": "gtm-template-ifelseif",
+                    "version": "1a2a5ad38afc4539d9adde44db786eac0cc70071",
+                    "signature": "ae330cad0667e003bca886ae2419515e9b5a894b5ea88607d9edd2f2c65015b7"
+                }
+            },
+            {
+                "accountId": "999999999",
+                "containerId": "999999999",
+                "templateId": "1034",
+                "name": "GA4 Session Cookie Parser",
+                "fingerprint": "1747407016998",
+                "templateData": "___INFO___\n\n{\n  \"type\": \"MACRO\",\n  \"id\": \"cvt_temp_public_id\",\n  \"version\": 1,\n  \"securityGroups\": [],\n  \"displayName\": \"GA4 Session Cookie Parser\",\n  \"description\": \"The variable extracts a specific value from a GA4 (GS2-formatted) cookie based on a provided prefix. https://github.com/selnekovic/gtm-templates/tree/main/GA4%20Cookie%20Parser\",\n  \"containerContexts\": [\n    \"WEB\"\n  ]\n}\n\n\n___TEMPLATE_PARAMETERS___\n\n[\n  {\n    \"type\": \"TEXT\",\n    \"name\": \"measurementId\",\n    \"displayName\": \"Measurement Id\",\n    \"simpleValueType\": true,\n    \"valueHint\": \"G-123456789\",\n    \"alwaysInSummary\": true\n  },\n  {\n    \"type\": \"SELECT\",\n    \"name\": \"prefix\",\n    \"displayName\": \"Cookie parameter\",\n    \"macrosInSelect\": false,\n    \"selectItems\": [\n      {\n        \"value\": \"s\",\n        \"displayValue\": \"Session Id\"\n      },\n      {\n        \"value\": \"o\",\n        \"displayValue\": \"Session number\"\n      },\n      {\n        \"value\": \"g\",\n        \"displayValue\": \"Session engaged\"\n      },\n      {\n        \"value\": \"t\",\n        \"displayValue\": \"Last Hit Timestamp\"\n      },\n      {\n        \"value\": \"j\",\n        \"displayValue\": \"Join Timer\"\n      },\n      {\n        \"value\": \"l\",\n        \"displayValue\": \"Enhanced User Id Logged In State\"\n      },\n      {\n        \"value\": \"h\",\n        \"displayValue\": \"Enhanced User Id\"\n      },\n      {\n        \"value\": \"d\",\n        \"displayValue\": \"Join Id\"\n      }\n    ],\n    \"simpleValueType\": true,\n    \"alwaysInSummary\": true\n  }\n]\n\n\n___SANDBOXED_JS_FOR_WEB_TEMPLATE___\n\nconst getCookieValues = require('getCookieValues');\n\nconst measurementId = data.measurementId;\nconst prefix = data.prefix;\n\nvar cookieName = '_ga_' + measurementId.slice(2);\nvar cookie = getCookieValues(cookieName);\n\nif (!cookie || !cookie.length || typeof cookie[0] !== 'string') return undefined;\nvar prefixIndex = cookie[0].indexOf(prefix);\n\nif (prefixIndex === -1) return undefined;\nvar substringAfterPrefix = cookie[0].substring(prefixIndex + 1);\nvar dollarIndex = substringAfterPrefix.indexOf('$');\n\nif (dollarIndex !== -1) {\n    return substringAfterPrefix.substring(0, dollarIndex);\n  } else {\n    // If no '$' is found, the value goes to the end of the string\n    return substringAfterPrefix;\n  }\n\n\n___WEB_PERMISSIONS___\n\n[\n  {\n    \"instance\": {\n      \"key\": {\n        \"publicId\": \"get_cookies\",\n        \"versionId\": \"1\"\n      },\n      \"param\": [\n        {\n          \"key\": \"cookieAccess\",\n          \"value\": {\n            \"type\": 1,\n            \"string\": \"any\"\n          }\n        }\n      ]\n    },\n    \"clientAnnotations\": {\n      \"isEditedByUser\": true\n    },\n    \"isRequired\": true\n  }\n]\n\n\n___TESTS___\n\nscenarios: []\n\n\n___NOTES___\n\nCreated on 15/05/2025, 13:50:24\n\n\n"
+            }
+        ]
+    }
+}
